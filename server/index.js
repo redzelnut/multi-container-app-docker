@@ -16,27 +16,31 @@ const pgClient = new Pool({
     host: keys.pgHost,
     database: keys.pgDatabase,
     password: keys.pgPassword,
-    port: keys.pgPort
-
+    port: keys.pgPort,
+    ssl:
+    process.env.NODE_ENV !== 'production'
+      ? false
+      : { rejectUnauthorized: false },
 });
-pgClient.on('error',() => console.log('Lost PG Connection'));
 
-pgClient.query('CREATE TABLE IF NOT EXISTS values (number INT)')
-    .catch(err => console.log(err));
+pgClient.on('connect', (client) => {
+    client
+      .query('CREATE TABLE IF NOT EXISTS values (number INT)')
+      .catch((err) => console.error(err));
+  });
 
 // Redis CLient Setup
 const redis = require('redis');
 const redisClient = redis.createClient({
     host: keys.redisHost,
     port: keys.redisPort,
-    retry_strategy: () => 1000
-
+    retry_strategy: () => 1000,
 });
 const redisPublisher = redisClient.duplicate();
 
 // Expresss route handlers 
 
-app.get('/', (req,res) => {
+app.get('/', (req, res) => {
     res.send('Hi');
 });
 
