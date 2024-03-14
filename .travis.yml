@@ -14,3 +14,10 @@ after_success:
   - docker build -t derniageng/multi-nginx ./nginx
   - docker build -t derniageng/multi-server ./server
   - docker build -t derniageng/multi-worker ./worker
+  # login docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # Take those image to docker hub 
+  - docker push derniageng/multi-client
+  - docker push derniageng/multi-nginx
+  - docker push derniageng/multi-server
+  - docker push derniageng/multi-worker 
